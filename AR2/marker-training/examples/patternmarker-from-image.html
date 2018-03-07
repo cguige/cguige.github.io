@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
 <!-- three.js library -->
-<script src='js/three.js'></script>
-<script src='js/stats.min.js'></script>
+<script src='../../vendor/three.js/build/three.js'></script>
+<script src='../../vendor/three.js/examples/js/libs/stats.min.js'></script>
 <!-- jsartookit -->
-<script src='js/artoolkit.min.js'></script>
-<script src='js/artoolkit.api.js'></script>
+<script src='../../../vendor/jsartoolkit5/build/artoolkit.min.js'></script>
+<script src='../../../vendor/jsartoolkit5/js/artoolkit.api.js'></script>
 <!-- include threex.artoolkit -->
-<script src='js/threex/threex-artoolkitsource.js'></script>
-<script src='js/threex/threex-artoolkitcontext.js'></script>
-<script src='js/threex/threex-artoolkitprofile.js'></script>
-<script src='js/threex/threex-arbasecontrols.js'></script>
-<script src='js/threex/threex-armarkercontrols.js'></script>
-<script src='js/threex/threex-arsmoothedcontrols.js'></script>
-<script>THREEx.ArToolkitContext.baseURL = './'</script>
+<script src='../../../src/threex/threex-artoolkitsource.js'></script>
+<script src='../../../src/threex/threex-artoolkitcontext.js'></script>
+<script src='../../../src/threex/threex-artoolkitprofile.js'></script>
+<script src='../../../src/threex/threex-arbasecontrols.js'></script>
+<script src='../../../src/threex/threex-armarkercontrols.js'></script>
+<script src='../../../src/threex/threex-arsmoothedcontrols.js'></script>
+<script>THREEx.ArToolkitContext.baseURL = '../../../'</script>
+
+<!-- include THREEx.ArPatternFile -->
+<script src='../threex-arpatternfile.js'></script>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'><div style='position: absolute; top: 10px; width:100%; text-align: center;z-index:1';>
 	<a href='https://github.com/jeromeetienne/AR.js/' target='_blank'>AR.js</a> - developement playground
@@ -65,11 +68,10 @@
 	var arToolkitSource = new THREEx.ArToolkitSource({
 		// to read from the webcam 
 		sourceType : 'webcam',
-
+		
 		// // to read from an image
 		// sourceType : 'image',
 		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/img.jpg',		
-		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/armchair.jpg',		
 
 		// to read from a video
 		// sourceType : 'video',
@@ -77,20 +79,15 @@
 	})
 
 	arToolkitSource.init(function onReady(){
-		onResize()
+		// handle resize of renderer
+		arToolkitSource.onResize([renderer.domElement, arToolkitContext.arController.canvas])		
 	})
 	
 	// handle resize
 	window.addEventListener('resize', function(){
-		onResize()
+		// handle arToolkitSource resize
+		arToolkitSource.onResize([renderer.domElement, arToolkitContext.arController.canvas])
 	})
-	function onResize(){
-		arToolkitSource.onResizeElement()	
-		arToolkitSource.copyElementSizeTo(renderer.domElement)	
-		if( arToolkitContext.arController !== null ){
-			arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)	
-		}	
-	}
 
 	////////////////////////////////////////////////////////////////////////////////
 	//          initialize arToolkitContext
@@ -98,17 +95,10 @@
 
 	// create atToolkitContext
 	var arToolkitContext = new THREEx.ArToolkitContext({
-		cameraParametersUrl: THREEx.ArToolkitContext.baseURL + 'data/data/camera_para.dat',
-		// debug: true,
-		// detectionMode: 'mono_and_matrix',
+		cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
 		detectionMode: 'mono',
-		// detectionMode: 'color_and_matrix',
-		// matrixCodeType: '3x3',
-
 		canvasWidth: 80*3,
 		canvasHeight: 60*3,
-
-		maxDetectionRate: 30,
 	})
 	// initialize it
 	arToolkitContext.init(function onCompleted(){
@@ -130,22 +120,23 @@
 	
 	var markerRoot = new THREE.Group
 	scene.add(markerRoot)
-	var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-		// type: 'barcode',
-		// barcodeValue: 5,
-		
-		type : 'pattern',
-		patternUrl : THREEx.ArToolkitContext.baseURL + 'marker-training/examples/pattern-files/pattern-hiro.patt',
-	})
 
+	// load image and convert it to a marker
+	var imageURL = THREEx.ArToolkitContext.baseURL + 'examples/marker-training/examples/inner-images/inner-hiro.png'
+	THREEx.ArPatternFile.encodeImageURL(imageURL, function onComplete(patternFileString){
+		var patternURL = 'data:text/plain;base64,' + btoa(patternFileString)
+		// create THREEx.ArMarkerControls
+		var markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+			type : 'pattern',
+			patternUrl : THREEx.ArToolkitContext.baseURL + 'examples/marker-training/examples/pattern-files/pattern-hiro.patt',
+			patternUrl : patternURL,
+		})	
+	})
 
 	// build a smoothedControls
 	var smoothedRoot = new THREE.Group()
 	scene.add(smoothedRoot)
 	var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
-		lerpPosition: 0.4,
-		lerpQuaternion: 0.3,
-		lerpScale: 1,
 		// minVisibleDelay: 1,
 		// minUnvisibleDelay: 1,
 	})
@@ -164,31 +155,29 @@
 	//		add an object in the scene
 	//////////////////////////////////////////////////////////////////////////////////
 
-	// var arWorldRoot = markerRoot
-	var arWorldRoot = smoothedRoot
 
 	var mesh = new THREE.AxisHelper()
 	// markerRoot.add(mesh)
-	arWorldRoot.add(mesh)
-
-	// add a torus knot
+	smoothedRoot.add(mesh)
+	
+	// add a torus knot	
 	var geometry	= new THREE.CubeGeometry(1,1,1);
 	var material	= new THREE.MeshNormalMaterial({
 		transparent : true,
 		opacity: 0.5,
 		side: THREE.DoubleSide
-	})
+	}); 
 	var mesh	= new THREE.Mesh( geometry, material );
 	mesh.position.y	= geometry.parameters.height/2
 	// markerRoot.add( mesh );
-	arWorldRoot.add(mesh)
+	smoothedRoot.add(mesh)
 	
 	var geometry	= new THREE.TorusKnotGeometry(0.3,0.1,64,16);
 	var material	= new THREE.MeshNormalMaterial(); 
 	var mesh	= new THREE.Mesh( geometry, material );
 	mesh.position.y	= 0.5
 	// markerRoot.add( mesh );
-	arWorldRoot.add( mesh );
+	smoothedRoot.add( mesh );
 	
 	onRenderFcts.push(function(delta){
 		mesh.rotation.x += delta * Math.PI
