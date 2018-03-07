@@ -2,6 +2,7 @@
 <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
 <!-- three.js library -->
 <script src='js/three.js'></script>
+<script src="js/OBJLoader.js"></script>
 <script src='js/stats.min.js'></script>
 <!-- jsartookit -->
 <script src='js/artoolkit.min.js'></script>
@@ -170,9 +171,15 @@
 	// var mesh = new THREE.AxisHelper()
 	// // markerRoot.add(mesh)
 	// arWorldRoot.add(mesh)
+	/*var loader = new THREE.OBJLoader(manager);
+	loader.load("obj/car.obj", function(object){
+		
+		
+	});*/
+	//
 
 	// add a torus knot
-	var geometry	= new THREE.CubeGeometry(1,1,1);
+	var geometry	= new THREE.CubeGeometry(10,1,10);
 	var material	= new THREE.MeshNormalMaterial({
 		transparent : true,
 		opacity: 0.5,
