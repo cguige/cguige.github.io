@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>海尔</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link href="" rel="stylesheet">
+<style type="text/css">
+	*{ margin: 0; padding: 0; }
+	body{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; }
+	#container{ width: 100%; height: 100%; }
+</style>
+
+<script type="text/javascript" src="lib/three.min.js"></script>
+<script type="text/javascript" src="lib/OrbitControls.js"></script>
+<script type="text/javascript" src="lib/stats.min.js"></script>
+<script type="text/javascript" src="lib/SceneBase.js"></script>
+<!-- <script type="text/javascript" src=""></script> -->
+
+</head>
+<body onload="init();">
+    <div id="container"></div>
+
+	<script type="text/javascript">
+		var dom = document.getElementById("container");
+		var base = new yu.SceneBase(dom);
+
+		function init(){
+			
+			var g = new THREE.BoxGeometry(100,100,100);
+			var m = new THREE.MeshBasicMaterial({ color: 0xffffff });
+			var mesh = new THREE.Mesh(g,m);
+
+			base.scene.add(mesh);
+
+			animate();
+		};
+
+		function animate(){
+			base.render();
+
+			requestAnimationFrame(animate);
+		}
+	</script>
+</body>
+</html>
