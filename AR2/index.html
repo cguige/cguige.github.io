@@ -171,15 +171,22 @@
 	// var mesh = new THREE.AxisHelper()
 	// // markerRoot.add(mesh)
 	// arWorldRoot.add(mesh)
-	/*var loader = new THREE.OBJLoader(manager);
+	var loader = new THREE.OBJLoader();
 	loader.load("obj/car.obj", function(object){
 		
-		
-	});*/
+		// console.log(object.children[0].geometry)
+		var g = object.children[0].geometry;
+		g.computeBoundingBox()
+		// console.log(g.boundingBox)
+		var m = new THREE.PointsMaterial({ color: "green", size: 0.03 });
+		var car = new THREE.Points(g,m);
+		car.scale.set( 2/g.boundingBox.max.z, 2/g.boundingBox.max.z, 2/g.boundingBox.max.z );
+		arWorldRoot.add(car)
+	});
 	//
 
 	// add a torus knot
-	var geometry	= new THREE.CubeGeometry(10,1,10);
+	var geometry	= new THREE.CubeGeometry(1,1,1);
 	var material	= new THREE.MeshNormalMaterial({
 		transparent : true,
 		opacity: 0.5,
