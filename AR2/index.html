@@ -144,8 +144,8 @@
 		// barcodeValue: 5,
 		
 		type : 'pattern',
-		patternUrl : THREEx.ArToolkitContext.baseURL + 'marker-training/examples/pattern-files/pattern-hiro.patt',
-		// patternUrl : THREEx.ArToolkitContext.baseURL + 'data/multimarkers/patt.wbst',
+		// patternUrl : THREEx.ArToolkitContext.baseURL + 'marker-training/examples/pattern-files/pattern-hiro.patt',
+		patternUrl : THREEx.ArToolkitContext.baseURL + 'data/multimarkers/patt.wbst',
 	})
 
 
@@ -215,6 +215,7 @@
 				initCars( attribute1, attribute2, attribute3 );
 				initGround();
 				startAnimate();
+				alert("load complete")
 			}
 		};
 
@@ -310,7 +311,7 @@
 
 					"if(length(newP)==0.)	gl_PointSize = 0.;",
 
-					"gl_Position = projectionMatrix * modelViewMatrix * vec4( mix(oldP, newP, time) + N*26.*sin(time*PI) + rand()*0.3, 1. );",
+					"gl_Position = projectionMatrix * modelViewMatrix * vec4( mix(oldP, newP, time) + N*26.*sin(time*PI)/* + rand()*0.3*/, 1. );",
 				"}"
 			].join("\n"),
 			fragmentShader: [
