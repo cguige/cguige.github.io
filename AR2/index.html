@@ -311,7 +311,7 @@
 
 					"if(length(newP)==0.)	gl_PointSize = 0.;",
 
-					"gl_Position = projectionMatrix * modelViewMatrix * vec4( mix(oldP, newP, time) + N*26.*sin(time*PI)/* + rand()*0.3*/, 1. );",
+					"gl_Position = projectionMatrix * modelViewMatrix * vec4( mix(oldP, newP, time) + N*26.*sin(time*PI) /*+ rand()*0.3*/, 1. );",
 				"}"
 			].join("\n"),
 			fragmentShader: [
@@ -328,7 +328,7 @@
 		});
 
 		var car = new THREE.Points(g,m);
-		car.scale.set( 1/24, 1/24, 1/24 );
+		car.scale.set( 1/30, 1/30, 1/30 );
 		arWorldRoot.add(car);
 	};
 
