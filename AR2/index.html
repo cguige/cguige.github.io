@@ -5,8 +5,9 @@
 <script src="js/OBJLoader.js"></script>
 <script src='js/stats.min.js'></script>
 <!-- jsartookit -->
-<script src='js/artoolkit.min.js'></script>
-<script src='js/artoolkit.api.js'></script>
+<!-- <script src='js/artoolkit.min.js'></script>
+<script src='js/artoolkit.api.js'></script> -->
+<script type="text/javascript" src="js/ar.js"></script>
 <!-- include threex.artoolkit -->
 <script src='js/threex/threex-artoolkitsource.js'></script>
 <script src='js/threex/threex-artoolkitcontext.js'></script>
@@ -230,11 +231,9 @@
 	// render the scene
 	onRenderFcts.push(function(){
 		renderer.render( scene, camera );
-		// console.log(camera.position)
 	})
 
 	function startAnimate(){
-		alert("start animate")
 		// run the rendering loop
 		var lastTimeMsec= null
 		requestAnimationFrame(function animate(nowMsec){
