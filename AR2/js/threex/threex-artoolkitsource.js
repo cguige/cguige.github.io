@@ -180,12 +180,11 @@ ARjs.Source.prototype._initSourceWebcam = function(onReady, onError) {
 
 	// get available devices
 	navigator.mediaDevices.enumerateDevices().then(function(devices) {
-			alert("environmenthhhhhh")
 
                 var userMediaConstraints = {
 			audio: false,
-			video: true/*{
-				facingMode: { exact: "environment" }
+			video: {
+				facingMode: "environment",
 				width: {
 					ideal: _this.parameters.sourceWidth,
 					// min: 1024,
@@ -196,7 +195,7 @@ ARjs.Source.prototype._initSourceWebcam = function(onReady, onError) {
 					// min: 776,
 					// max: 1080
 				}
-		  	}*/
+		  	}
                 }
 		// get a device which satisfy the constraints
 		navigator.mediaDevices.getUserMedia(userMediaConstraints).then(function success(stream) {

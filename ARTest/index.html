@@ -11,9 +11,12 @@
 	*{ margin: 0; padding: 0; }
 	body{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; }
 	#container{ width: 100%; height: 100%; }
+	button{ color: #000; background-color: #fff; }
+	#buttBox{ position: absolute; bottom: 0; }
 </style>
 
 <script type="text/javascript" src="lib/three.min.js"></script>
+<script type="text/javascript" src="lib/TweenMax.min.js"></script>
 <script type="text/javascript" src="lib/OBJLoader.js"></script>
 <script type="text/javascript" src="lib/OrbitControls.js"></script>
 <script type="text/javascript" src="lib/stats.min.js"></script>
@@ -22,11 +25,30 @@
 </head>
 <body onload="init();">
     <div id="container"></div>
+    <div id="buttBox">
+    	<button id="butt1" onclick="butClick(0);">111111</button>
+	    <button id="butt2" onclick="butClick(1);">222222</button>
+	    <button id="butt3" onclick="butClick(2);">333333</button>
+    </div>
+    
 
 	<script type="text/javascript">
 		var dom = document.getElementById("container");
 		var base = new yu.SceneBase(dom);
+		base.camera.position.set(0,0,4);
 		base.setStats();
+
+		var carUniform = {
+			color: { value: new THREE.Color("blue") },
+			mode1: { value: 0 },
+			mode2: { value: 0 },
+			time: { value: 0 },
+			Bump: { value: 0 }
+		};
+		var groundUniforms = {
+			color: { value: new THREE.Color(0x0ec5ea) },
+			time: { value: 0 }
+		};
 
 		function init(){
 			
@@ -36,77 +58,198 @@
 		};
 
 		function initObj(){
-			var loader = new THREE.OBJLoader();
+			var attribute1={position: [], normal: [], yOffset: 0}, attribute2={position: [], normal: [], yOffset: 0}, attribute3={position: [], normal: [], yOffset: 0};
+			var p1, p2, p3, n1, n2, n3;
+
+			var manager = new THREE.LoadingManager();
+			manager.onProgress = function(item, loaded, total){
+				console.log(loaded, total)
+				if (loaded >= total) {
+
+					var max = Math.max( p1.length, Math.max( p2.length, p3.length ) );
+					for(var i=0; i<max; i++){
+
+						var s = i%3==1 ? 1 : 0;
+
+						attribute1.position.push( p1[i]==undefined ? 0 : p1[i]+attribute1.yOffset*s );
+						attribute2.position.push( p2[i]==undefined ? 0 : p2[i]+attribute2.yOffset*s );
+						attribute3.position.push( p3[i]==undefined ? 0 : p3[i]+attribute3.yOffset*s );
+
+						attribute1.normal.push( n1[i]==undefined ? 0 : n1[i] );
+						attribute2.normal.push( n2[i]==undefined ? 0 : n2[i] );
+						attribute3.normal.push( n3[i]==undefined ? 0 : n3[i] );
+					}
+
+					initCars( attribute1, attribute2, attribute3 );
+					initGround();
+					// startAnimate();
+				}
+			};
+
+			var loader = new THREE.OBJLoader(manager);
 			loader.load("obj/car.obj", function(object){
 				
-				var g = object.children[0].geometry;
-				g.computeBoundingBox()
-
-				// var m = new THREE.PointsMaterial({ color: "green", size: 0.03 });
-				// var m = new THREE.MeshBasicMaterial({ color: 0xffffff });
-				var m = new THREE.ShaderMaterial({
-					uniforms: {
-						color: { value: new THREE.Color("blue") },
-						yOffset: { value: g.boundingBox.max.y }
-					},
-					vertexShader: [
-						"uniform float yOffset;",
-						"varying vec3 vP;",
-						"varying vec3 N;",
-						"varying vec2 vUV;",
-						"void main(void){",
-							"vP = position + vec3(0., yOffset, 0.);",
-							"N = normal;",
-							"vUV = uv;",
-							"gl_Position = projectionMatrix * modelViewMatrix * vec4( vP, 1. );",
-						"}"
-					].join("\n"),
-					fragmentShader: [
-						"uniform vec3 color;",
-						"varying vec3 vP;",
-						"varying vec3 N;",
-						"varying vec2 vUV;",
-						"void main(void){",
-							"vec3 n = normalize(N);",
-							"float light = (max( 0.95, dot(n, normalize( vec3(0., 0.8, 1.) ) ) ) - 0.95)/0.05;",
-							"float opacity = abs(dot(n, normalize(vec3(0.5, 0.7, 1.4))) );",
-							"vec3 uColor = vec3(0., 0.3, 0.3) + color * opacity + vec3( light*light*0.4 );",
-							"gl_FragColor = vec4(uColor, opacity);",
-						"}"
-					].join("\n"),
-					transparent: true
-				});
-				var car = new THREE.Mesh(g,m);
-				// var car = new THREE.Points(g,m);
-				car.scale.set( 10,10,10 );
-				base.scene.add(car);
-
-
-				// initGround();
+				object.children[0].geometry.computeBoundingBox();
+				attribute1.yOffset = object.children[0].geometry.boundingBox.max.y;
+				p1 = object.children[0].geometry.attributes.position.array;
+				n1 = object.children[0].geometry.attributes.normal.array;
 			});
+
+			var loader1 = new THREE.OBJLoader(manager);
+			loader1.load("obj/leisa2.obj", function(object){
+				
+				object.children[0].geometry.computeBoundingBox();
+				attribute2.yOffset = object.children[0].geometry.boundingBox.max.y;
+				p2 = object.children[0].geometry.attributes.position.array;
+				n2 = object.children[0].geometry.attributes.normal.array;
+			});
+
+			var loader3 = new THREE.OBJLoader(manager);
+			loader3.load("obj/leisa3.obj", function(object){
+				
+				object.children[0].geometry.computeBoundingBox();
+				console.log(object.children[0].geometry.boundingBox)
+				attribute3.yOffset = object.children[0].geometry.boundingBox.max.y;
+				p3 = object.children[0].geometry.attributes.position.array;
+				n3 = object.children[0].geometry.attributes.normal.array;
+			});
+
+			
 		};
 
-		function initGround(){
-			var pg = new THREE.PlaneBufferGeometry(1,1);
+		function initCars(a1, a2, a3){
+
+			var g = new THREE.BufferGeometry();
+			g.addAttribute("position", new THREE.BufferAttribute(new Float32Array(a1.position), 3));
+			g.addAttribute("p1", new THREE.BufferAttribute(new Float32Array(a2.position), 3));
+			g.addAttribute("p2", new THREE.BufferAttribute(new Float32Array(a3.position), 3));
+			g.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(a1.normal), 3));
+			g.addAttribute("n1", new THREE.BufferAttribute(new Float32Array(a2.normal), 3));
+			g.addAttribute("n2", new THREE.BufferAttribute(new Float32Array(a3.normal), 3));
+
 			var m = new THREE.ShaderMaterial({
-				uniform: {
-					color: { value: new THREE.Color("blue") }
-				},
+				uniforms: carUniform,
 				vertexShader: [
+					"const float PI = 3.141592653589793;",
+					"attribute vec3 p1;",
+					"attribute vec3 p2;",
+					"attribute vec3 n1;",
+					"attribute vec3 n2;",
+					"uniform float mode1;",
+					"uniform float mode2;",
+					"uniform float time;",
+					"uniform float Bump;",
+					"varying vec3 N;",
+
+					"vec3 rand(){",
+					    "return normalize(vec3(",
+							"fract(sin(dot(vec3(Bump) ,vec3(12.9898,78.233,23.9238))) * 43758.5453),",
+							"fract(cos(dot(vec3(Bump) ,vec3(329.90,23.24933,19.488))) * 43758.5453),",
+							"fract(sin(dot(vec3(Bump) ,vec3(87.9893,324.839,233.432))) * 43758.5453)",
+					    "));",
+					"}",
+
 					"void main(void){",
-						"gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.);",
+						"gl_PointSize = 1.5;",
+
+						"vec3 oldP = position;",
+						"vec3 newP = position;",
+						"vec3 oldN = normal;",
+						"vec3 newN = normal;",
+
+						"if(mode1==1.){",
+							"oldP = p1;",
+							"oldN = n1;",
+						"}",
+						"else if(mode1==2.){",
+							"oldP = p2;",
+							"oldN = n2;",
+						"}",
+
+						"if(mode2==1.){",
+							"newP = p1;",
+							"newN = n1;",
+						"}",
+						"else if(mode2==2.){",
+							"newP = p2;",
+							"newN = n2;",
+						"}",
+						"N = mix(oldN, newN, time);",
+
+						"if(length(newP)==0.)	gl_PointSize = 0.;",
+
+						"gl_Position = projectionMatrix * modelViewMatrix * vec4( mix(oldP, newP, time) + N*10.*sin(time*PI) + rand()*0.3, 1. );",
 					"}"
 				].join("\n"),
 				fragmentShader: [
 					"uniform vec3 color;",
+					"varying vec3 N;",
 					"void main(void){",
-						"gl_FragColor = vec4(color, 1.);",
+						"vec3 n = normalize(N);",
+						"float opacity = abs(dot(n, normalize(vec3(0.5, 0.7, 1.4))) );",
+						"vec3 uColor = vec3(0., 0.3, 0.3) + color * opacity;",
+						"gl_FragColor = vec4(uColor, opacity);",
 					"}"
-				].join("\n")
+				].join("\n"),
+				transparent: true
+			});
+
+			var car = new THREE.Points(g,m);
+			car.scale.set( 1/30, 1/30, 1/30 );
+			base.scene.add(car);
+		};
+
+		function butClick(n){
+			carUniform.time.value = 0;
+			carUniform.mode2.value = n;
+			TweenMax.to(carUniform.time, 1.3, {
+				value: 1,
+				ease: Power1.easeInOut,
+				onComplete: function(){
+					carUniform.mode1.value = n;
+				}
 			})
 		};
 
+		function initGround(){
+			var g = new THREE.PlaneBufferGeometry(10,10);
+			var m = new THREE.ShaderMaterial({
+				uniforms: groundUniforms,
+				vertexShader: [
+					"varying vec2 vUV;",
+					"void main(void){",
+						"vUV = uv;",
+						"gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.);",
+					"}"
+				].join("\n"),
+				fragmentShader: [
+					"const float PI = 3.141592653589793;",
+					"uniform vec3 color;",
+					"uniform float time;",
+					"varying vec2 vUV;",
+					"void main(void){",
+						"float v = mod(vUV.x*100., 4.);",
+						"float opacityV = smoothstep(0., 0.02, v) - smoothstep(0.06, 0.08, v);",
+
+						"float u = mod((vUV.y-time)*100., 3.);",
+						"float opacityU = smoothstep(0., 0.1, u) - smoothstep(1., 1.1, u);",
+						"float o = opacityU*opacityV;",
+
+						"gl_FragColor = vec4(mix(vec3(0.), color, o), 0.4);",
+					"}"
+				].join("\n"),
+				transparent: true
+			});
+
+			var plane = new THREE.Mesh(g,m);
+			plane.lookAt({x: 0, y: 1, z: 0});
+			base.scene.add(plane);
+		};
+
+
 		function animate(){
+			groundUniforms.time.value += 0.003;
+			carUniform.Bump.value += 0.1;
 			base.render();
 
 			requestAnimationFrame(animate);
