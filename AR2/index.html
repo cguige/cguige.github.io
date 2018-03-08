@@ -211,11 +211,10 @@
 			});
 			var car = new THREE.Mesh(g,m);
 			// var car = new THREE.Points(g,m);
-			car.scale.set( 10,10,10 );
-			base.scene.add(car);
+			car.scale.set( 1/g.boundingBox.max.z, 1/g.boundingBox.max.z, 1/g.boundingBox.max.z );
+			arWorldRoot.add(car);
 
-
-			// initGround();
+			alert("load complete");
 		});
 	};
 
