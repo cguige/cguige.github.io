@@ -180,7 +180,14 @@ ARjs.Source.prototype._initSourceWebcam = function(onReady, onError) {
 
 	// get available devices
 	navigator.mediaDevices.enumerateDevices().then(function(devices) {
-			console.log(99999)
+			// console.log(JSON.stringify(devices))
+			var videoN = 0;
+			for(var i=0; i<devices.length; i++){
+				if(devices[i].kind == "videoinput")
+					videoN ++;
+			}
+			alert("video num: "+videoN)
+
                 var userMediaConstraints = {
 			audio: false,
 			video: {
