@@ -180,12 +180,12 @@ ARjs.Source.prototype._initSourceWebcam = function(onReady, onError) {
 
 	// get available devices
 	navigator.mediaDevices.enumerateDevices().then(function(devices) {
-			alert("environment")
+			alert("environmentTTTTT")
 
                 var userMediaConstraints = {
 			audio: false,
 			video: {
-				facingMode: "environment"
+				facingMode: { exact: "environment" }
 				/*width: {
 					ideal: _this.parameters.sourceWidth,
 					// min: 1024,
