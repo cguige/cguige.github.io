@@ -310,7 +310,7 @@
 
 					"if(length(newP)==0.)	gl_PointSize = 0.;",
 
-					"gl_Position = projectionMatrix * modelViewMatrix * vec4( mix(oldP, newP, time) + N*10.*sin(time*PI) + rand()*0.3, 1. );",
+					"gl_Position = projectionMatrix * modelViewMatrix * vec4( mix(oldP, newP, time) + N*40.*sin(time*PI) + rand()*0.3, 1. );",
 				"}"
 			].join("\n"),
 			fragmentShader: [
